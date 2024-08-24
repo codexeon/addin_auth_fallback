@@ -1,0 +1,42 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT License. -->
+<!-- This file shows how to design a first-run page that provides a welcome screen to the user about the features of the add-in. -->
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contoso Task Pane Add-in</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.debug.js"></script>
+
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+    <link
+      rel="stylesheet"
+      href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"
+    />
+
+    <!-- Template styles -->
+    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="ms-font-m ms-welcome ms-Fabric">
+    <main id="app-body" class="ms-welcome__main">
+      <div role="button" id="msal_js_button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+        <span class="ms-Button-label">Sign-In MSAL.js</span>
+      </div>
+      <div role="button" id="dialog_api_button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+        <span class="ms-Button-label">Sign-In Dialog API</span>
+      </div>
+      <div role="button" id="sign_out_button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+        <span class="ms-Button-label">Sign Out</span>
+      </div>
+      <div role="button" id="sign_out_dialog_button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+        <span class="ms-Button-label">Sign Out Dialog API</span>
+      </div>
+      <textarea class="ms-Textarea" id="output"></textarea>
+    </main>
+  </body>
+</html>
