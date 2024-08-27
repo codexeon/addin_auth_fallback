@@ -15,9 +15,8 @@ async function getHttpsOptions() {
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
   const config = {
-    devtool: "source-map",
+    devtool: false,
     entry: {
-      polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
       taskpane: ["./src/taskpane/taskpane.ts"],
       dialog: ["./src/taskpane/fallbackauthdialog.ts"],
       commands: "./src/commands/commands.ts",
@@ -31,13 +30,10 @@ module.exports = async (env, options) => {
     module: {
       rules: [
         {
-          test: /\.ts$/,
+          test: /\.(js|ts|jsx|tsx|mjs)$/,
           exclude: /node_modules/,
           use: {
             loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-typescript"],
-            },
           },
         },
         {
@@ -58,12 +54,12 @@ module.exports = async (env, options) => {
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
-        chunks: ["polyfill", "taskpane"],
+        chunks: ["taskpane"],
       }),
       new HtmlWebpackPlugin({
         filename: "dialog.html",
         template: "./src/taskpane/dialog.html",
-        chunks: ["polyfill", "dialog"],
+        chunks: ["dialog"],
       }),
       new HtmlWebpackPlugin({
         filename: "auth.html",
@@ -77,7 +73,7 @@ module.exports = async (env, options) => {
             to: "assets/[name][ext][query]",
           },
           {
-            from: "manifest*.xml",
+            from: "manifest*.json",
             to: "[name]" + "[ext]",
             transform(content) {
               if (dev) {
@@ -92,10 +88,13 @@ module.exports = async (env, options) => {
       new HtmlWebpackPlugin({
         filename: "commands.html",
         template: "./src/commands/commands.html",
-        chunks: ["polyfill", "commands"],
+        chunks: ["commands"],
       }),
     ],
     devServer: {
+      hot: false,
+      liveReload: false,
+      client: false,
       allowedHosts: ["testnaafallback"],
       headers: {
         "Access-Control-Allow-Origin": "*",

@@ -65,7 +65,7 @@ export async function getTokenRequest(accountContext?: AccountContext): Promise<
 let _publicClientApp: PublicClientApplication;
 export async function ensurePublicClient() {
   if (!_publicClientApp) {
-    _publicClientApp = await createNestablePublicClientApplication(msalConfig);
+    _publicClientApp = await createStandardPublicClientApplication(msalConfig);
   }
   return _publicClientApp;
 }

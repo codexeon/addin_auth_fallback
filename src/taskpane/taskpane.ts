@@ -13,7 +13,7 @@ import {
   msalConfig,
 } from "./msalcommon";
 
-/* global console, document, Office */
+/* global console, document, Office, window */
 
 Office.onReady((info) => {
   document.getElementById("msal_js_button").onclick = msalAuth;
@@ -65,29 +65,27 @@ async function signOut() {
 }
 
 async function msalAuth() {
+  sessionStorage.clear();
+
+  const accountContext = await getAccountContext();
+  const request = await getTokenRequest(accountContext);
+  const pca = await ensurePublicClient();
+  let result: AuthenticationResult;
   try {
-    const accountContext = await getAccountContext();
-    const request = await getTokenRequest(accountContext);
-    const pca = await ensurePublicClient();
-    let result: AuthenticationResult;
     if (request.account) {
       result = await pca.acquireTokenSilent(request);
     } else {
       if (request.loginHint) {
-        try {
-          result = await pca.ssoSilent(request);
-        } catch {}
+        result = await pca.ssoSilent(request);
       }
-      if (!result) {
-        result = await pca.acquireTokenPopup(request);
-      }
-      pca.setActiveAccount(result.account);
     }
+  } catch {}
 
-    output(result.accessToken);
-  } catch (ex) {
-    output(ex);
+  if (!result) {
+    result = await pca.acquireTokenPopup(request);
   }
+  pca.setActiveAccount(result.account);
+  output(result.accessToken);
 }
 
 function processDialogMessage(arg: { message: string; origin: string | undefined }) {
