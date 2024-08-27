@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^3.21.0",
+    "@azure/msal-browser-v2": "npm:@azure/msal-browser@^2.39.0",
+    "@babel/preset-env": "^7.25.4",
     "core-js": "^3.36.0",
     "regenerator-runtime": "^0.14.1"
   },

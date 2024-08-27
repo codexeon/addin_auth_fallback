@@ -4,22 +4,18 @@
  */
 
 import { AuthenticationResult } from "@azure/msal-browser";
-import {
-  AccountContext,
-  createLocalUrl,
-  ensurePublicClient,
-  getAccountFromContext,
-  getTokenRequest,
-  msalConfig,
-} from "./msalcommon";
+import { AccountContext, ensurePublicClient, getTokenRequest } from "./msalcommon";
+import { createLocalUrl } from "./util";
 
 /* global console, document, Office, window */
 
 Office.onReady((info) => {
   document.getElementById("msal_js_button").onclick = msalAuth;
-  document.getElementById("dialog_api_button").onclick = dialogApiAuth;
+  document.getElementById("dialog_api_button").onclick = () => dialogApiAuth(false);
+  document.getElementById("dialog_api_button_ie").onclick = () => dialogApiAuth(true);
   document.getElementById("sign_out_button").onclick = signOut;
   document.getElementById("sign_out_dialog_button").onclick = signOutDialogAPi;
+
   checkSignedIn();
 });
 
@@ -51,7 +47,7 @@ async function checkSignedIn() {
 }
 
 function signOutDialogAPi() {
-  Office.context.ui.displayDialogAsync("https://localhost:3000/dialog.html?logout=1");
+  Office.context.ui.displayDialogAsync(createLocalUrl("dialog.html?logout=1"));
 }
 
 async function signOut() {
@@ -67,25 +63,29 @@ async function signOut() {
 async function msalAuth() {
   sessionStorage.clear();
 
-  const accountContext = await getAccountContext();
-  const request = await getTokenRequest(accountContext);
-  const pca = await ensurePublicClient();
-  let result: AuthenticationResult;
   try {
-    if (request.account) {
-      result = await pca.acquireTokenSilent(request);
-    } else {
-      if (request.loginHint) {
-        result = await pca.ssoSilent(request);
+    const accountContext = await getAccountContext();
+    const request = await getTokenRequest(accountContext);
+    const pca = await ensurePublicClient();
+    let result: AuthenticationResult;
+    try {
+      if (request.account) {
+        result = await pca.acquireTokenSilent(request);
+      } else {
+        if (request.loginHint) {
+          result = await pca.ssoSilent(request);
+        }
       }
-    }
-  } catch {}
+    } catch {}
 
-  if (!result) {
-    result = await pca.acquireTokenPopup(request);
+    if (!result) {
+      result = await pca.acquireTokenPopup(request);
+    }
+    pca.setActiveAccount(result.account);
+    output(result.accessToken);
+  } catch (ex) {
+    output(ex);
   }
-  pca.setActiveAccount(result.account);
-  output(result.accessToken);
 }
 
 function processDialogMessage(arg: { message: string; origin: string | undefined }) {
@@ -95,10 +95,12 @@ function processDialogMessage(arg: { message: string; origin: string | undefined
 }
 
 let loginDialog: Office.Dialog;
-async function dialogApiAuth() {
+async function dialogApiAuth(isInternetExplorer?: boolean) {
   const accountContext = await getAccountContext();
   Office.context.ui.displayDialogAsync(
-    createLocalUrl(`dialog.html?accountContext=${encodeURIComponent(JSON.stringify(accountContext))}`),
+    createLocalUrl(
+      `${isInternetExplorer ? "dialogie.html" : "dialog.html"}?accountContext=${encodeURIComponent(JSON.stringify(accountContext))}`
+    ),
     (result) => {
       loginDialog = result.value;
       result.value.addEventHandler(Office.EventType.DialogMessageReceived, processDialogMessage);

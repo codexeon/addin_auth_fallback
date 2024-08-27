@@ -19,6 +19,7 @@ module.exports = async (env, options) => {
     entry: {
       taskpane: ["./src/taskpane/taskpane.ts"],
       dialog: ["./src/taskpane/fallbackauthdialog.ts"],
+      dialogie: ["./src/taskpane/fallbackauthdialogie.ts"],
       commands: "./src/commands/commands.ts",
     },
     output: {
@@ -31,7 +32,11 @@ module.exports = async (env, options) => {
       rules: [
         {
           test: /\.(js|ts|jsx|tsx|mjs)$/,
-          exclude: /node_modules/,
+          exclude: {
+            and: [/node_modules/], // Exclude libraries in node_modules ...
+            not: [/@azure/],
+            // not: [/@azure\/msal-browser-v2/],
+          },
           use: {
             loader: "babel-loader",
           },
@@ -60,6 +65,11 @@ module.exports = async (env, options) => {
         filename: "dialog.html",
         template: "./src/taskpane/dialog.html",
         chunks: ["dialog"],
+      }),
+      new HtmlWebpackPlugin({
+        filename: "dialogie.html",
+        template: "./src/taskpane/dialog.html",
+        chunks: ["dialogie"],
       }),
       new HtmlWebpackPlugin({
         filename: "auth.html",

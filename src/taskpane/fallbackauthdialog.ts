@@ -1,7 +1,7 @@
 /* global console, Office */
 
-import { createStandardPublicClientApplication } from "@azure/msal-browser";
-import { getTokenRequest, msalConfig, AccountContext, createLocalUrl } from "./msalcommon";
+import { getTokenRequest, AccountContext, ensurePublicClient } from "./msalcommon";
+import { createLocalUrl } from "./util";
 
 // read querystring parameter
 function getQueryParameter(param: string) {
@@ -10,13 +10,14 @@ function getQueryParameter(param: string) {
 }
 
 export async function initializeMsal() {
-  const publicClientApp = await createStandardPublicClientApplication(msalConfig);
+  const publicClientApp = await ensurePublicClient();
   try {
     if (getQueryParameter("logout") === "1") {
       await publicClientApp.logoutRedirect();
       return;
     }
     const result = await publicClientApp.handleRedirectPromise();
+
     if (result) {
       publicClientApp.setActiveAccount(result.account);
       await Office.onReady();
