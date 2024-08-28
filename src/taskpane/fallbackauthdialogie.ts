@@ -1,4 +1,4 @@
-/* global console, Office */
+/* global Office */
 
 import { PublicClientApplication } from "@azure/msal-browser-v2";
 import { defaultScopes, msalConfig } from "./msalconfig";
@@ -20,7 +20,7 @@ export async function initializeMsal() {
     return;
   }
 
-  publicClientApp.loginRedirect({
+  publicClientApp.acquireTokenRedirect({
     scopes: defaultScopes,
     redirectUri: createLocalUrl("dialogie.html"),
   });

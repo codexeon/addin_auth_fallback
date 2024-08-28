@@ -1,6 +1,6 @@
 import { createLocalUrl } from "./util";
 
-const clientId = "148b0448-c6ab-4d8e-adb2-a0f2696966d2";
+export const clientId = "148b0448-c6ab-4d8e-adb2-a0f2696966d2";
 export const msalConfig = {
   auth: {
     clientId,

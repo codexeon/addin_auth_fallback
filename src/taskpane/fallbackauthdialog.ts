@@ -1,7 +1,9 @@
-/* global console, Office */
+/* global Office, window */
 
+import { AuthenticationResult } from "@azure/msal-browser";
 import { getTokenRequest, AccountContext, ensurePublicClient } from "./msalcommon";
 import { createLocalUrl } from "./util";
+import { PublicClientApplication } from "@azure/msal-browser";
 
 // read querystring parameter
 function getQueryParameter(param: string) {
@@ -9,6 +11,12 @@ function getQueryParameter(param: string) {
   return params.get(param);
 }
 
+async function returnResult(publicClientApp: PublicClientApplication, authResult: AuthenticationResult) {
+  publicClientApp.setActiveAccount(authResult.account);
+  await Office.onReady();
+  Office.context.ui.messageParent(JSON.stringify({ token: authResult.accessToken }));
+  return;
+}
 export async function initializeMsal() {
   const publicClientApp = await ensurePublicClient();
   try {
@@ -19,10 +27,7 @@ export async function initializeMsal() {
     const result = await publicClientApp.handleRedirectPromise();
 
     if (result) {
-      publicClientApp.setActiveAccount(result.account);
-      await Office.onReady();
-      Office.context.ui.messageParent(JSON.stringify({ token: result.accessToken }));
-      return;
+      return returnResult(publicClientApp, result);
     }
   } catch (ex) {
     await Office.onReady();
@@ -36,10 +41,15 @@ export async function initializeMsal() {
     accountContext = JSON.parse(accountContextString);
   }
   const request = await getTokenRequest(accountContext);
-  publicClientApp.loginRedirect({
-    ...request,
-    redirectUri: createLocalUrl("dialog.html"),
-  });
+  try {
+    publicClientApp.acquireTokenRedirect({
+      ...request,
+      redirectUri: createLocalUrl("dialog.html"),
+    });
+  } catch (ex) {
+    const result = await publicClientApp.ssoSilent(request);
+    return returnResult(publicClientApp, result);
+  }
 }
 
 initializeMsal();

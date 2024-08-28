@@ -15,7 +15,7 @@ async function getHttpsOptions() {
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
   const config = {
-    devtool: false,
+    devtool: "source-map",
     entry: {
       taskpane: ["./src/taskpane/taskpane.ts"],
       dialog: ["./src/taskpane/fallbackauthdialog.ts"],
@@ -34,8 +34,7 @@ module.exports = async (env, options) => {
           test: /\.(js|ts|jsx|tsx|mjs)$/,
           exclude: {
             and: [/node_modules/], // Exclude libraries in node_modules ...
-            not: [/@azure/],
-            // not: [/@azure\/msal-browser-v2/],
+            not: [/@azure\/msal-browser-v2/],
           },
           use: {
             loader: "babel-loader",
